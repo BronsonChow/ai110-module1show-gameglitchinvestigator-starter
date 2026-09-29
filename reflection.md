@@ -14,9 +14,9 @@ Document at least 3 bugs you found. Add rows as needed.
 
 | Input | Expected Behavior | Actual Behavior | Console Output / Error |
 |-------|-------------------|-----------------|------------------------|
-| | | | |
-| | | | |
-| | | | |
+|Guess of -22220|Hint displays "Go HIGHER!"|Hint displays "Go LOWER!"|none|
+|Guess of 1.11e+46 expanded form|Hint displays "Go LOWER!"|Hint displays "Go HIGHER!"|none|
+|New Game button pressed|Attempts and states reset|Nothing is reset|none|
 
 ---
 
