@@ -1,0 +1,34 @@
+Test result log
+===============
+
+Every `pytest` run in this project appends a block below, written by the
+pytest_sessionfinish hook in conftest.py. Newest runs are at the bottom.
+
+==============================================================================
+Test run: 2026-09-29 17:58:30
+Target:   pytest tests/test_game_logic.py -q
+Versions: python 3.14.3 | pytest 9.1.1
+------------------------------------------------------------------------------
+FAILED  tests/test_game_logic.py::test_winning_guess     0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+FAILED  tests/test_game_logic.py::test_guess_too_high    0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+FAILED  tests/test_game_logic.py::test_guess_too_low     0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+------------------------------------------------------------------------------
+Result: 3 failed (exit status 1)
+
+==============================================================================
+Test run: 2026-09-29 17:58:36
+Target:   pytest -q
+Versions: python 3.14.3 | pytest 9.1.1
+------------------------------------------------------------------------------
+FAILED  tests/test_game_logic.py::test_winning_guess     0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+FAILED  tests/test_game_logic.py::test_guess_too_high    0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+FAILED  tests/test_game_logic.py::test_guess_too_low     0.000s
+        -> NotImplementedError: Refactor this function from app.py into logic_utils.py
+------------------------------------------------------------------------------
+Result: 3 failed (exit status 1)
+

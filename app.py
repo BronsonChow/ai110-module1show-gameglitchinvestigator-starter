@@ -64,6 +64,21 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
     return current_score
 
+
+def reset_game(low: int, high: int):
+    st.session_state.secret = random.randint(low, high)
+    st.session_state.attempts = 0
+    st.session_state.score = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+
+
+def start_new_game(low: int, high: int, guess_key: str):
+    """Reset the game from a button callback, before widgets are instantiated."""
+    reset_game(low, high)
+    st.session_state[guess_key] = ""
+    st.session_state.new_game_started = True
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -90,19 +105,7 @@ st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
 if "secret" not in st.session_state:
-    st.session_state.secret = random.randint(low, high)
-
-if "attempts" not in st.session_state:
-    st.session_state.attempts = 1
-
-if "score" not in st.session_state:
-    st.session_state.score = 0
-
-if "status" not in st.session_state:
-    st.session_state.status = "playing"
-
-if "history" not in st.session_state:
-    st.session_state.history = []
+    reset_game(low, high)
 
 st.subheader("Make a guess")
 
@@ -118,24 +121,27 @@ with st.expander("Developer Debug Info"):
     st.write("Difficulty:", difficulty)
     st.write("History:", st.session_state.history)
 
+guess_key = f"guess_input_{difficulty}"
+
 raw_guess = st.text_input(
     "Enter your guess:",
-    key=f"guess_input_{difficulty}"
+    key=guess_key
 )
 
 col1, col2, col3 = st.columns(3)
 with col1:
     submit = st.button("Submit Guess 🚀")
 with col2:
-    new_game = st.button("New Game 🔁")
+    st.button(
+        "New Game 🔁",
+        on_click=start_new_game,
+        args=(low, high, guess_key),
+    )
 with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
-if new_game:
-    st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+if st.session_state.pop("new_game_started", False):
     st.success("New game started.")
-    st.rerun()
 
 if st.session_state.status != "playing":
     if st.session_state.status == "won":
