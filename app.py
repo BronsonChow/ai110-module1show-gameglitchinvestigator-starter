@@ -79,6 +79,66 @@ def start_new_game(low: int, high: int, guess_key: str):
     st.session_state[guess_key] = ""
     st.session_state.new_game_started = True
 
+
+def submit_guess(attempt_limit: int, guess_key: str):
+    """Score one guess from a button callback, so the page renders fresh state.
+
+    Messages are stashed in session_state rather than written here, because
+    st.* output from a callback is discarded.
+    """
+    if st.session_state.status != "playing":
+        return
+
+    messages = []
+    balloons = False
+
+    st.session_state.attempts += 1
+
+    raw_guess = st.session_state.get(guess_key, "")
+    ok, guess_int, err = parse_guess(raw_guess)
+
+    if not ok:
+        st.session_state.history.append(raw_guess)
+        messages.append(("error", err))
+    else:
+        st.session_state.history.append(guess_int)
+
+        if st.session_state.attempts % 2 == 0:
+            secret = str(st.session_state.secret)
+        else:
+            secret = st.session_state.secret
+
+        outcome, message = check_guess(guess_int, secret)
+
+        if st.session_state.get("show_hint", True):
+            messages.append(("warning", message))
+
+        st.session_state.score = update_score(
+            current_score=st.session_state.score,
+            outcome=outcome,
+            attempt_number=st.session_state.attempts,
+        )
+
+        if outcome == "Win":
+            balloons = True
+            st.session_state.status = "won"
+            messages.append((
+                "success",
+                f"You won! The secret was {st.session_state.secret}. "
+                f"Final score: {st.session_state.score}",
+            ))
+        else:
+            if st.session_state.attempts >= attempt_limit:
+                st.session_state.status = "lost"
+                messages.append((
+                    "error",
+                    f"Out of attempts! "
+                    f"The secret was {st.session_state.secret}. "
+                    f"Score: {st.session_state.score}",
+                ))
+
+    st.session_state.last_result = {"messages": messages, "balloons": balloons}
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -123,14 +183,18 @@ with st.expander("Developer Debug Info"):
 
 guess_key = f"guess_input_{difficulty}"
 
-raw_guess = st.text_input(
+st.text_input(
     "Enter your guess:",
     key=guess_key
 )
 
 col1, col2, col3 = st.columns(3)
 with col1:
-    submit = st.button("Submit Guess 🚀")
+    st.button(
+        "Submit Guess 🚀",
+        on_click=submit_guess,
+        args=(attempt_limit, guess_key),
+    )
 with col2:
     st.button(
         "New Game 🔁",
@@ -138,60 +202,25 @@ with col2:
         args=(low, high, guess_key),
     )
 with col3:
-    show_hint = st.checkbox("Show hint", value=True)
+    show_hint = st.checkbox("Show hint", value=True, key="show_hint")
 
 if st.session_state.pop("new_game_started", False):
     st.success("New game started.")
 
+last_result = st.session_state.pop("last_result", None)
+if last_result:
+    for kind, text in last_result["messages"]:
+        getattr(st, kind)(text)
+    if last_result["balloons"]:
+        st.balloons()
+
 if st.session_state.status != "playing":
-    if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
-    else:
-        st.error("Game over. Start a new game to try again.")
+    if not last_result:
+        if st.session_state.status == "won":
+            st.success("You already won. Start a new game to play again.")
+        else:
+            st.error("Game over. Start a new game to try again.")
     st.stop()
-
-if submit:
-    st.session_state.attempts += 1
-
-    ok, guess_int, err = parse_guess(raw_guess)
-
-    if not ok:
-        st.session_state.history.append(raw_guess)
-        st.error(err)
-    else:
-        st.session_state.history.append(guess_int)
-
-        if st.session_state.attempts % 2 == 0:
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
-
-        outcome, message = check_guess(guess_int, secret)
-
-        if show_hint:
-            st.warning(message)
-
-        st.session_state.score = update_score(
-            current_score=st.session_state.score,
-            outcome=outcome,
-            attempt_number=st.session_state.attempts,
-        )
-
-        if outcome == "Win":
-            st.balloons()
-            st.session_state.status = "won"
-            st.success(
-                f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}"
-            )
-        else:
-            if st.session_state.attempts >= attempt_limit:
-                st.session_state.status = "lost"
-                st.error(
-                    f"Out of attempts! "
-                    f"The secret was {st.session_state.secret}. "
-                    f"Score: {st.session_state.score}"
-                )
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
