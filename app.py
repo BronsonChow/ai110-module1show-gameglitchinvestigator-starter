@@ -51,18 +51,19 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
     return current_score
 
 
-def reset_game(low: int, high: int):
+def reset_game(low: int, high: int, attempt_limit: int):
     st.session_state.secret = random.randint(low, high)
-    st.session_state.secret_range = (low, high)
+    # Remembered so a settings change can start a fresh game.
+    st.session_state.game_settings = (low, high, attempt_limit)
     st.session_state.attempts = 0
     st.session_state.score = 0
     st.session_state.status = "playing"
     st.session_state.history = []
 
 
-def start_new_game(low: int, high: int, guess_key: str):
+def start_new_game(low: int, high: int, attempt_limit: int, guess_key: str):
     """Reset the game from a button callback, before widgets are instantiated."""
-    reset_game(low, high)
+    reset_game(low, high, attempt_limit)
     st.session_state[guess_key] = ""
     st.session_state.new_game_started = True
 
@@ -144,7 +145,6 @@ attempt_limit_map = {
     "Normal": 8,
     "Hard": 5,
 }
-attempt_limit = attempt_limit_map[difficulty]
 
 # Keyed per difficulty so switching difficulty restores that difficulty's default range.
 min_key = f"range_min_{difficulty}"
@@ -175,19 +175,30 @@ with max_col:
         key=max_key,
     )
 
-st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+attempt_limit = st.sidebar.number_input(
+    "Attempts allowed (1 to 20)",
+    min_value=1,
+    max_value=20,
+    value=attempt_limit_map[difficulty],
+    step=1,
+    key=f"attempt_limit_{difficulty}",
+)
 
 if "secret" not in st.session_state:
-    reset_game(low, high)
-elif st.session_state.get("secret_range") != (low, high):
-    # The old secret may be outside the new range, so start over.
-    reset_game(low, high)
-    st.session_state.range_changed = True
+    reset_game(low, high, attempt_limit)
+elif st.session_state.get("game_settings") != (low, high, attempt_limit):
+    # The old secret may be outside a new range, and a new attempt limit
+    # shouldn't apply to a game already in progress, so start over.
+    reset_game(low, high, attempt_limit)
+    st.session_state.settings_changed = True
 
 st.subheader("Make a guess")
 
-if st.session_state.pop("range_changed", False):
-    st.success(f"Range is now {low} to {high}. New game started.")
+if st.session_state.pop("settings_changed", False):
+    st.success(
+        f"Range is now {low} to {high} with {attempt_limit} attempts. "
+        f"New game started."
+    )
 
 st.info(
     f"Guess a number between {low} and {high}. "
@@ -231,7 +242,7 @@ with col1:
     st.button(
         "New Game 🔁",
         on_click=start_new_game,
-        args=(low, high, guess_key),
+        args=(low, high, attempt_limit, guess_key),
     )
 with col2:
     show_hint = st.checkbox("Show hint", value=True, key="show_hint")
