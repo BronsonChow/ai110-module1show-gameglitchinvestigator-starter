@@ -11,6 +11,14 @@ def get_range_for_difficulty(difficulty: str):
     return 1, 100
 
 
+def is_float(raw: str):
+    try:
+        float(raw)
+    except ValueError:
+        return False
+    return True
+
+
 def parse_guess(raw: str):
     if raw is None:
         return False, None, "Enter a guess."
@@ -19,11 +27,10 @@ def parse_guess(raw: str):
         return False, None, "Enter a guess."
 
     try:
-        if "." in raw:
-            value = int(float(raw))
-        else:
-            value = int(raw)
-    except Exception:
+        value = int(raw)
+    except ValueError:
+        if "." in raw and is_float(raw):
+            return False, None, "Decimals aren't allowed. Enter a whole number."
         return False, None, "That is not a number."
 
     return True, value, None
@@ -77,41 +84,49 @@ def submit_guess(attempt_limit: int, guess_key: str):
     if st.session_state.status != "playing":
         return
 
+    raw_guess = st.session_state.get(guess_key, "")
+    ok, guess_int, err = parse_guess(raw_guess)
+
+    low, high, _ = st.session_state.game_settings
+    if ok and not low <= guess_int <= high:
+        ok, err = False, f"Your guess must be between {low} and {high}."
+    elif ok and guess_int in st.session_state.history:
+        ok, err = False, f"You already guessed {guess_int}. Try a different number."
+
+    # Invalid guesses are refused without using up an attempt.
+    if not ok:
+        st.session_state.last_result = {
+            "messages": [("error", err)],
+            "balloons": False,
+        }
+        return
+
     messages = []
     balloons = False
 
     st.session_state.attempts += 1
+    st.session_state.history.append(guess_int)
 
-    raw_guess = st.session_state.get(guess_key, "")
-    ok, guess_int, err = parse_guess(raw_guess)
+    outcome, message = check_guess(guess_int, st.session_state.secret)
 
-    if not ok:
-        st.session_state.history.append(raw_guess)
-        messages.append(("error", err))
-    else:
-        st.session_state.history.append(guess_int)
+    if st.session_state.get("show_hint", True):
+        messages.append(("warning", message))
 
-        outcome, message = check_guess(guess_int, st.session_state.secret)
+    st.session_state.score = update_score(
+        current_score=st.session_state.score,
+        outcome=outcome,
+        attempt_number=st.session_state.attempts,
+    )
 
-        if st.session_state.get("show_hint", True):
-            messages.append(("warning", message))
+    if outcome == "Win":
+        balloons = True
+        st.session_state.status = "won"
+        messages.append((
+            "success",
+            f"You won! The secret was {st.session_state.secret}. "
+            f"Final score: {st.session_state.score}",
+        ))
 
-        st.session_state.score = update_score(
-            current_score=st.session_state.score,
-            outcome=outcome,
-            attempt_number=st.session_state.attempts,
-        )
-
-        if outcome == "Win":
-            balloons = True
-            st.session_state.status = "won"
-            messages.append((
-                "success",
-                f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}",
-            ))
-
-    # Invalid guesses use up an attempt too, so check the limit for both.
     if (
         st.session_state.status == "playing"
         and st.session_state.attempts >= attempt_limit
@@ -217,9 +232,8 @@ guess_key = f"guess_input_{difficulty}"
 with st.container(border=True):
     st.markdown("**Your guesses**")
     if st.session_state.history:
-        # Inline code keeps raw (invalid) entries from being read as markdown.
         st.markdown(" &nbsp; ".join(
-            f"**#{i}** `{str(g).replace('`', '')}`"
+            f"**#{i}** `{g}`"
             for i, g in enumerate(st.session_state.history, start=1)
         ))
     else:
