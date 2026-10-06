@@ -183,25 +183,26 @@ with st.expander("Developer Debug Info"):
 
 guess_key = f"guess_input_{difficulty}"
 
-st.text_input(
-    "Enter your guess:",
-    key=guess_key
-)
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.button(
+# A form submits when Enter is pressed in the text input.
+with st.form("guess_form"):
+    st.text_input(
+        "Enter your guess:",
+        key=guess_key
+    )
+    st.form_submit_button(
         "Submit Guess 🚀",
         on_click=submit_guess,
         args=(attempt_limit, guess_key),
     )
-with col2:
+
+col1, col2 = st.columns(2)
+with col1:
     st.button(
         "New Game 🔁",
         on_click=start_new_game,
         args=(low, high, guess_key),
     )
-with col3:
+with col2:
     show_hint = st.checkbox("Show hint", value=True, key="show_hint")
 
 if st.session_state.pop("new_game_started", False):
