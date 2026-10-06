@@ -33,33 +33,19 @@ def check_guess(guess, secret):
     if guess == secret:
         return "Win", "🎉 Correct!"
 
-    try:
-        if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
-        else:
-            return "Too Low", "📉 Go LOWER!"
-    except TypeError:
-        g = str(guess)
-        if g == secret:
-            return "Win", "🎉 Correct!"
-        if g > secret:
-            return "Too High", "📈 Go HIGHER!"
-        return "Too Low", "📉 Go LOWER!"
+    if guess > secret:
+        return "Too High", "📉 Go LOWER!"
+    return "Too Low", "📈 Go HIGHER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
     if outcome == "Win":
-        points = 100 - 10 * (attempt_number + 1)
+        points = 100 - 10 * (attempt_number - 1)
         if points < 10:
             points = 10
         return current_score + points
 
-    if outcome == "Too High":
-        if attempt_number % 2 == 0:
-            return current_score + 5
-        return current_score - 5
-
-    if outcome == "Too Low":
+    if outcome in ("Too High", "Too Low"):
         return current_score - 5
 
     return current_score
@@ -103,12 +89,7 @@ def submit_guess(attempt_limit: int, guess_key: str):
     else:
         st.session_state.history.append(guess_int)
 
-        if st.session_state.attempts % 2 == 0:
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
-
-        outcome, message = check_guess(guess_int, secret)
+        outcome, message = check_guess(guess_int, st.session_state.secret)
 
         if st.session_state.get("show_hint", True):
             messages.append(("warning", message))
@@ -182,6 +163,17 @@ with st.expander("Developer Debug Info"):
     st.write("History:", st.session_state.history)
 
 guess_key = f"guess_input_{difficulty}"
+
+with st.container(border=True):
+    st.markdown("**Your guesses**")
+    if st.session_state.history:
+        # Inline code keeps raw (invalid) entries from being read as markdown.
+        st.markdown(" &nbsp; ".join(
+            f"**#{i}** `{str(g).replace('`', '')}`"
+            for i, g in enumerate(st.session_state.history, start=1)
+        ))
+    else:
+        st.caption("No guesses yet.")
 
 # A form submits when Enter is pressed in the text input.
 with st.form("guess_form"):
