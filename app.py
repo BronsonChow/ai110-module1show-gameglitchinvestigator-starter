@@ -53,6 +53,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
 def reset_game(low: int, high: int):
     st.session_state.secret = random.randint(low, high)
+    st.session_state.secret_range = (low, high)
     st.session_state.attempts = 0
     st.session_state.score = 0
     st.session_state.status = "playing"
@@ -124,6 +125,7 @@ def submit_guess(attempt_limit: int, guess_key: str):
 
     st.session_state.last_result = {"messages": messages, "balloons": balloons}
 
+
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
 
 st.title("🎮 Game Glitch Investigator")
@@ -144,18 +146,51 @@ attempt_limit_map = {
 }
 attempt_limit = attempt_limit_map[difficulty]
 
-low, high = get_range_for_difficulty(difficulty)
+# Keyed per difficulty so switching difficulty restores that difficulty's default range.
+min_key = f"range_min_{difficulty}"
+max_key = f"range_max_{difficulty}"
+default_min, default_max = get_range_for_difficulty(difficulty)
+current_min = st.session_state.get(min_key, default_min)
+current_max = st.session_state.get(max_key, default_max)
 
-st.sidebar.caption(f"Range: {low} to {high}")
+# Each field's limit follows the other field, so min always stays below max.
+# value= is passed explicitly because Streamlit checks it against the limits.
+st.sidebar.markdown("**Range**")
+min_col, max_col = st.sidebar.columns(2)
+with min_col:
+    low = st.number_input(
+        f"Min (up to {current_max - 1})",
+        value=current_min,
+        max_value=current_max - 1,
+        step=1,
+        key=min_key,
+    )
+with max_col:
+    high = st.number_input(
+        f"Max ({current_min + 1} to 1000)",
+        value=current_max,
+        min_value=current_min + 1,
+        max_value=1000,
+        step=1,
+        key=max_key,
+    )
+
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
 if "secret" not in st.session_state:
     reset_game(low, high)
+elif st.session_state.get("secret_range") != (low, high):
+    # The old secret may be outside the new range, so start over.
+    reset_game(low, high)
+    st.session_state.range_changed = True
 
 st.subheader("Make a guess")
 
+if st.session_state.pop("range_changed", False):
+    st.success(f"Range is now {low} to {high}. New game started.")
+
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
