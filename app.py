@@ -108,15 +108,19 @@ def submit_guess(attempt_limit: int, guess_key: str):
                 f"You won! The secret was {st.session_state.secret}. "
                 f"Final score: {st.session_state.score}",
             ))
-        else:
-            if st.session_state.attempts >= attempt_limit:
-                st.session_state.status = "lost"
-                messages.append((
-                    "error",
-                    f"Out of attempts! "
-                    f"The secret was {st.session_state.secret}. "
-                    f"Score: {st.session_state.score}",
-                ))
+
+    # Invalid guesses use up an attempt too, so check the limit for both.
+    if (
+        st.session_state.status == "playing"
+        and st.session_state.attempts >= attempt_limit
+    ):
+        st.session_state.status = "lost"
+        messages.append((
+            "error",
+            f"Out of attempts! "
+            f"The secret was {st.session_state.secret}. "
+            f"Score: {st.session_state.score}",
+        ))
 
     st.session_state.last_result = {"messages": messages, "balloons": balloons}
 
@@ -210,9 +214,15 @@ if last_result:
 if st.session_state.status != "playing":
     if not last_result:
         if st.session_state.status == "won":
-            st.success("You already won. Start a new game to play again.")
+            st.success(
+                f"You already won. The secret was {st.session_state.secret}. "
+                f"Start a new game to play again."
+            )
         else:
-            st.error("Game over. Start a new game to try again.")
+            st.error(
+                f"Game over. The secret was {st.session_state.secret}. "
+                f"Start a new game to try again."
+            )
     st.stop()
 
 st.divider()
