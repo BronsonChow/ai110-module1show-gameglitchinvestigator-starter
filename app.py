@@ -156,8 +156,9 @@ difficulty = st.sidebar.selectbox(
     index=1,
 )
 
+#FIX: easier difficulties allow more attempts
 attempt_limit_map = {
-    "Easy": 6,
+    "Easy": 10,
     "Normal": 8,
     "Hard": 5,
 }
