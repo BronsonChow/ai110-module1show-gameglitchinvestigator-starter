@@ -46,15 +46,15 @@ def check_guess(guess, secret):
     return "Too Low", "📈 Go HIGHER!"
 
 
+#FIX: winning always scores more than losing
 def update_score(current_score: int, outcome: str, attempt_number: int):
+    # Wrong guesses are already penalized by the shrinking win bonus,
+    # so they don't also subtract points.
     if outcome == "Win":
         points = 100 - 10 * (attempt_number - 1)
         if points < 10:
             points = 10
         return current_score + points
-
-    if outcome in ("Too High", "Too Low"):
-        return current_score - 5
 
     return current_score
 
