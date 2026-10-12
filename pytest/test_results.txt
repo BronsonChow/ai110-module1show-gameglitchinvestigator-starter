@@ -32,3 +32,17 @@ FAILED  tests/test_game_logic.py::test_guess_too_low     0.000s
 ------------------------------------------------------------------------------
 Result: 3 failed (exit status 1)
 
+==============================================================================
+Test run: 2026-10-12 16:28:41
+Target:   pytest -q
+Versions: python 3.14.8 | pytest 9.1.1
+------------------------------------------------------------------------------
+FAILED  tests/test_game_logic.py::test_winning_guess     0.000s
+        -> AssertionError: assert ('Win', '🎉 Correct!') == 'Win'
+FAILED  tests/test_game_logic.py::test_guess_too_high    0.000s
+        -> AssertionError: assert ('Too High', '📉 Go LOWER!') == 'Too High'
+FAILED  tests/test_game_logic.py::test_guess_too_low     0.000s
+        -> AssertionError: assert ('Too Low', '📈 Go HIGHER!') == 'Too Low'
+------------------------------------------------------------------------------
+Result: 3 failed (exit status 1)
+
