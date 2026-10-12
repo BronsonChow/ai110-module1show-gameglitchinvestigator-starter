@@ -174,12 +174,14 @@ st.info(
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
-with st.expander("Developer Debug Info"):
-    st.write("Secret:", st.session_state.secret)
-    st.write("Attempts:", st.session_state.attempts)
-    st.write("Score:", st.session_state.score)
-    st.write("Difficulty:", difficulty)
-    st.write("History:", st.session_state.history)
+#FIX: debug panel (which shows the secret) only appears with ?debug=true
+if st.query_params.get("debug") == "true":
+    with st.expander("Developer Debug Info"):
+        st.write("Secret:", st.session_state.secret)
+        st.write("Attempts:", st.session_state.attempts)
+        st.write("Score:", st.session_state.score)
+        st.write("Difficulty:", difficulty)
+        st.write("History:", st.session_state.history)
 
 guess_key = f"guess_input_{difficulty}"
 
