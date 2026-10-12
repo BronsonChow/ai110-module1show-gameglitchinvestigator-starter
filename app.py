@@ -61,7 +61,8 @@ def submit_guess(attempt_limit: int, guess_key: str):
 
     outcome, message = check_guess(guess_int, st.session_state.secret)
 
-    if st.session_state.get("show_hint", True):
+    #FIX: "Show hint" only hides higher/lower hints, never the win message
+    if outcome != "Win" and st.session_state.get("show_hint", True):
         messages.append(("warning", message))
 
     st.session_state.score = update_score(
@@ -76,7 +77,7 @@ def submit_guess(attempt_limit: int, guess_key: str):
         st.session_state.status = "won"
         messages.append((
             "success",
-            f"You won! The secret was {st.session_state.secret}. "
+            f"{message} You won! The secret was {st.session_state.secret}. "
             f"Final score: {st.session_state.score}",
         ))
 
