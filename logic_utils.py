@@ -30,7 +30,8 @@ def parse_guess(raw: str):
     if raw is None:
         return False, None, "Enter a guess."
 
-    if raw == "":
+    #FIX: whitespace-only input counts as empty
+    if raw.strip() == "":
         return False, None, "Enter a guess."
 
     try:
