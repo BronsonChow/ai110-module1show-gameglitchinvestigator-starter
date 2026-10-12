@@ -1,3 +1,4 @@
+import math
 import random
 import streamlit as st
 
@@ -47,14 +48,22 @@ def check_guess(guess, secret):
 
 
 #FIX: winning always scores more than losing
-def update_score(current_score: int, outcome: str, attempt_number: int):
+#FIX: wider ranges are worth more points
+def update_score(
+    current_score: int,
+    outcome: str,
+    attempt_number: int,
+    range_size: int = 100,
+):
     # Wrong guesses are already penalized by the shrinking win bonus,
     # so they don't also subtract points.
     if outcome == "Win":
         points = 100 - 10 * (attempt_number - 1)
         if points < 10:
             points = 10
-        return current_score + points
+        # Scaled by how many guesses the range needs, so 1-100 is worth 1x.
+        multiplier = math.log2(range_size) / math.log2(100)
+        return current_score + round(points * multiplier)
 
     return current_score
 
@@ -117,6 +126,7 @@ def submit_guess(attempt_limit: int, guess_key: str):
         current_score=st.session_state.score,
         outcome=outcome,
         attempt_number=st.session_state.attempts,
+        range_size=high - low + 1,
     )
 
     if outcome == "Win":
