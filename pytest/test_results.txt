@@ -81,3 +81,51 @@ PASSED  tests/test_game_logic.py::test_wider_range_is_worth_more                
 ------------------------------------------------------------------------------
 Result: 16 passed (exit status 0)
 
+==============================================================================
+Test run: 2026-10-12 16:35:07
+Target:   pytest -q
+Versions: python 3.14.8 | pytest 9.1.1
+------------------------------------------------------------------------------
+PASSED  tests/test_game_logic.py::test_winning_guess                            0.000s
+PASSED  tests/test_game_logic.py::test_guess_too_high                           0.000s
+PASSED  tests/test_game_logic.py::test_guess_too_low                            0.000s
+PASSED  tests/test_game_logic.py::test_parse_valid_number                       0.000s
+PASSED  tests/test_game_logic.py::test_parse_strips_surrounding_spaces          0.000s
+PASSED  tests/test_game_logic.py::test_parse_empty_input                        0.000s
+PASSED  tests/test_game_logic.py::test_parse_whitespace_only_counts_as_empty    0.000s
+PASSED  tests/test_game_logic.py::test_parse_none                               0.000s
+PASSED  tests/test_game_logic.py::test_parse_rejects_decimals                   0.000s
+PASSED  tests/test_game_logic.py::test_parse_rejects_text                       0.000s
+PASSED  tests/test_game_logic.py::test_first_try_win_on_normal_range            0.000s
+PASSED  tests/test_game_logic.py::test_later_win_earns_fewer_points             0.000s
+PASSED  tests/test_game_logic.py::test_win_points_never_drop_below_minimum      0.000s
+PASSED  tests/test_game_logic.py::test_wrong_guess_does_not_change_score        0.000s
+PASSED  tests/test_game_logic.py::test_late_win_beats_a_loss                    0.000s
+PASSED  tests/test_game_logic.py::test_wider_range_is_worth_more                0.000s
+------------------------------------------------------------------------------
+Result: 16 passed (exit status 0)
+
+==============================================================================
+Test run: 2026-10-12 16:35:28
+Target:   pytest -q
+Versions: python 3.14.8 | pytest 9.1.1
+------------------------------------------------------------------------------
+PASSED  tests/test_game_logic.py::test_winning_guess                            0.000s
+PASSED  tests/test_game_logic.py::test_guess_too_high                           0.000s
+PASSED  tests/test_game_logic.py::test_guess_too_low                            0.000s
+PASSED  tests/test_game_logic.py::test_parse_valid_number                       0.000s
+PASSED  tests/test_game_logic.py::test_parse_strips_surrounding_spaces          0.000s
+PASSED  tests/test_game_logic.py::test_parse_empty_input                        0.000s
+PASSED  tests/test_game_logic.py::test_parse_whitespace_only_counts_as_empty    0.000s
+PASSED  tests/test_game_logic.py::test_parse_none                               0.000s
+PASSED  tests/test_game_logic.py::test_parse_rejects_decimals                   0.000s
+PASSED  tests/test_game_logic.py::test_parse_rejects_text                       0.000s
+PASSED  tests/test_game_logic.py::test_first_try_win_on_normal_range            0.000s
+PASSED  tests/test_game_logic.py::test_later_win_earns_fewer_points             0.000s
+PASSED  tests/test_game_logic.py::test_win_points_never_drop_below_minimum      0.000s
+PASSED  tests/test_game_logic.py::test_wrong_guess_does_not_change_score        0.000s
+PASSED  tests/test_game_logic.py::test_late_win_beats_a_loss                    0.000s
+PASSED  tests/test_game_logic.py::test_wider_range_is_worth_more                0.000s
+------------------------------------------------------------------------------
+Result: 16 passed (exit status 0)
+

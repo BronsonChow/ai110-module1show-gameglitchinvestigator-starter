@@ -154,12 +154,16 @@ attempt_limit = st.sidebar.number_input(
     key=f"attempt_limit_{difficulty}",
 )
 
+guess_key = f"guess_input_{difficulty}"
+
 if "secret" not in st.session_state:
     reset_game(low, high, attempt_limit)
 elif st.session_state.get("game_settings") != (low, high, attempt_limit):
     # The old secret may be outside a new range, and a new attempt limit
     # shouldn't apply to a game already in progress, so start over.
     reset_game(low, high, attempt_limit)
+    #FIX: clear the old guess; safe because the text input isn't drawn yet
+    st.session_state[guess_key] = ""
     st.session_state.settings_changed = True
 
 st.subheader("Make a guess")
@@ -183,8 +187,6 @@ if st.query_params.get("debug") == "true":
         st.write("Score:", st.session_state.score)
         st.write("Difficulty:", difficulty)
         st.write("History:", st.session_state.history)
-
-guess_key = f"guess_input_{difficulty}"
 
 with st.container(border=True):
     st.markdown("**Your guesses**")
