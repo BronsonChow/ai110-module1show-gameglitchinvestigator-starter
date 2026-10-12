@@ -57,7 +57,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
     return current_score
 
-
+#FIX: New game button
 def reset_game(low: int, high: int, attempt_limit: int):
     st.session_state.secret = random.randint(low, high)
     # Remembered so a settings change can start a fresh game.
@@ -74,7 +74,7 @@ def start_new_game(low: int, high: int, attempt_limit: int, guess_key: str):
     st.session_state[guess_key] = ""
     st.session_state.new_game_started = True
 
-
+#FIX: Delay when submitting a guess attempt
 def submit_guess(attempt_limit: int, guess_key: str):
     """Score one guess from a button callback, so the page renders fresh state.
 
@@ -239,7 +239,7 @@ with st.container(border=True):
     else:
         st.caption("No guesses yet.")
 
-# A form submits when Enter is pressed in the text input.
+#ADD: A form submits when Enter is pressed in the text input.
 with st.form("guess_form"):
     st.text_input(
         "Enter your guess:",
